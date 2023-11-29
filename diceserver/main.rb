@@ -20,11 +20,11 @@ def roll_text?(game_system, dice)
 end
 
 def json_error(message)
-  return "{ error: \"#{message}\" }"
+  return "{ \"error\": \"#{message}\" }"
 end
 
 def json_value(message)
-  return "{ body: \"#{message}\" }"
+  return "{ \"body\": \"#{message}\" }"
 end
 
 # `/` から始まる HTTP パス文字列を受け取り、`{ :game => "Emoklore", :dice => "2DM<=6" }` の Hash を返す

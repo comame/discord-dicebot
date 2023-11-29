@@ -2,9 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 
 	"github.com/comame/router-go"
@@ -59,11 +61,25 @@ func main() {
 				Data: nil,
 			}
 		case interactionTypeApplicationCommand:
-			res = interactionResponse{
-				Type: interactionCallbackTypeChannelMessageWithSource,
-				Data: &interactionCallbackDataMessages{
-					Content: "Hello, world!",
-				},
+			// Command 登録で Options[0] が dice なので
+			dice := req.Data.Options[0].Value.(string)
+			result, err := doRoll(dice)
+
+			if err != nil {
+				log.Println(err)
+				res = interactionResponse{
+					Type: interactionCallbackTypeChannelMessageWithSource,
+					Data: &interactionCallbackDataMessages{
+						Content: "ダイスロールに失敗 " + err.Error(),
+					},
+				}
+			} else {
+				res = interactionResponse{
+					Type: interactionCallbackTypeChannelMessageWithSource,
+					Data: &interactionCallbackDataMessages{
+						Content: result,
+					},
+				}
 			}
 		}
 
@@ -79,4 +95,38 @@ func main() {
 
 	log.Println("Start bot http://127.0.0.1:8080")
 	http.ListenAndServe(":8080", router.Handler())
+}
+
+func doRoll(dice string) (string, error) {
+	type resp struct {
+		Body  string `json:"body"`
+		Error string `json:"error"`
+	}
+
+	u, _ := url.Parse("http://localhost:8081/")
+
+	q := make(url.Values)
+	q.Add("dice", dice)
+	u.RawQuery = q.Encode()
+
+	res, err := http.Get(u.String())
+	if err != nil {
+		return "", err
+	}
+
+	b, err := io.ReadAll(res.Body)
+	if err != nil {
+		return "", err
+	}
+
+	var r resp
+	if err := json.Unmarshal(b, &r); err != nil {
+		return "", err
+	}
+
+	if r.Error != "" {
+		return "", errors.New(r.Error)
+	}
+
+	return r.Body, nil
 }
