@@ -1,0 +1,17 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    bcdice (3.11.0)
+      i18n (~> 1.8.5)
+    concurrent-ruby (1.2.2)
+    i18n (1.8.11)
+      concurrent-ruby (~> 1.0)
+
+PLATFORMS
+  x86_64-linux
+
+DEPENDENCIES
+  bcdice (~> 3.11)
+
+BUNDLED WITH
+   2.4.10
