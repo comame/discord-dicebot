@@ -137,8 +137,9 @@ def main
 
   loop do
     c = srv.accept()
-    # シングルスレッドで受けるがまあ気にしない、重かったら考える
-    handle(c)
+    Thread.new(c) {|c|
+      handle(c)
+    }
   end
 end
 
