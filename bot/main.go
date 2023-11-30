@@ -12,20 +12,30 @@ import (
 	"github.com/comame/router-go"
 )
 
+var gameMap = map[string]string{
+	"emo": "Emoklore",
+	"coc": "Cthulhu",
+}
+
 func main() {
 	var publicKey = os.Getenv("DISCORD_PUBLICKEY")
 	var applicationID = os.Getenv("DISCORD_APPLICATION_ID")
 	var botToken = os.Getenv("DISCORD_BOT_TOKEN")
 
 	if err := registerApplicationCommand(applicationCommand{
-		Name:        "dicebot",
+		Name:        "dice",
 		Type:        applicationCommandTypeChatInput,
-		Description: "Dicebot based on BCDice.",
+		Description: "Dicebot powered by BCDice",
 		Options: []applicationCommandOption{{
 			Type:        applicationCommandTypeString,
 			Name:        "dice",
-			Description: "Dice string.",
+			Description: "1D100, 2DM<=6",
 			Required:    true,
+		}, {
+			Type:        applicationCommandTypeString,
+			Name:        "game",
+			Description: "emo=>Emoklore, coc=>Cthulhu (See bcdice.org/systems)",
+			Required:    false,
 		}},
 	}, applicationID, botToken); err != nil {
 		panic(err)
@@ -63,14 +73,27 @@ func main() {
 		case interactionTypeApplicationCommand:
 			// Command 登録で Options[0] が dice なので
 			dice := req.Data.Options[0].Value.(string)
-			result, err := doRoll(dice)
+
+			// デフォルトではエモクロアを指定
+			game := "Emoklore"
+			if len(req.Data.Options) == 2 {
+				reqGame := req.Data.Options[1].Value.(string)
+				alias, ok := gameMap[reqGame]
+				if ok {
+					game = alias
+				} else {
+					game = reqGame
+				}
+			}
+
+			result, err := doRoll(dice, game)
 
 			if err != nil {
 				log.Println(err)
 				res = interactionResponse{
 					Type: interactionCallbackTypeChannelMessageWithSource,
 					Data: &interactionCallbackDataMessages{
-						Content: "ダイスロールに失敗 " + err.Error(),
+						Content: err.Error(),
 					},
 				}
 			} else {
@@ -97,7 +120,7 @@ func main() {
 	http.ListenAndServe(":8080", router.Handler())
 }
 
-func doRoll(dice string) (string, error) {
+func doRoll(dice, game string) (string, error) {
 	type resp struct {
 		Body  string `json:"body"`
 		Error string `json:"error"`
@@ -107,11 +130,12 @@ func doRoll(dice string) (string, error) {
 
 	q := make(url.Values)
 	q.Add("dice", dice)
+	q.Add("game", game)
 	u.RawQuery = q.Encode()
 
 	res, err := http.Get(u.String())
 	if err != nil {
-		return "", err
+		return "", errors.Join(errors.New("failed to get"), err)
 	}
 
 	b, err := io.ReadAll(res.Body)
@@ -121,11 +145,13 @@ func doRoll(dice string) (string, error) {
 
 	var r resp
 	if err := json.Unmarshal(b, &r); err != nil {
-		return "", err
+		log.Println("")
+		return "", errors.Join(errors.New("failed to unmarshal json"), err)
 	}
 
 	if r.Error != "" {
-		return "", errors.New(r.Error)
+		log.Println("")
+		return "", errors.Join(errors.New("failed to roll dice"), errors.New(r.Error))
 	}
 
 	return r.Body, nil

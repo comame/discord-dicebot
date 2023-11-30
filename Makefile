@@ -1,6 +1,6 @@
 SHELL=/bin/bash
 
-include .env
+include .env.prod
 export
 
 .PHONY: deploy dev

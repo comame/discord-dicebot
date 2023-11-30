@@ -115,16 +115,9 @@ def handle(client)
     return
   end
 
-  result = nil
-  if m[:game] == "" then
-    # Game を指定しなかったとき、エモクロアを使う
-    result = roll_text?("Emoklore", m[:dice])
-  else
-    result = roll_text?(m[:game], m[:dice])
-  end
-
+  result = roll_text?(m[:game], m[:dice])
   if result == nil then
-    respond_http(client, 400, "failed to roll dice")
+    respond_http(client, 400, json_error("不正な入力"))
     return
   end
 
