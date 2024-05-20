@@ -128,13 +128,17 @@ module Lib
 end
 
 def main
-  srv = TCPServer.new(8081)
-  p "Start dicebot http://127.0.0.1:8081"
+  begin
+    srv = TCPServer.new(8081)
+    p "Start dicebot http://127.0.0.1:8081"
 
-  loop do
-    c = srv.accept()
-    Thread.new(c) {|c|
-      Lib::handle(c)
-    }
+    loop do
+      c = srv.accept()
+      Thread.new(c) {|c|
+        Lib::handle(c)
+      }
+    end
+  ensure
+    srv.close
   end
 end
