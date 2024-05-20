@@ -1,11 +1,13 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    bcdice (3.11.0)
+    bcdice (3.13.0)
       i18n (~> 1.8.5)
-    concurrent-ruby (1.2.2)
+      racc (~> 1.7.3)
+    concurrent-ruby (1.2.3)
     i18n (1.8.11)
       concurrent-ruby (~> 1.0)
+    racc (1.7.3)
 
 PLATFORMS
   x86_64-linux
