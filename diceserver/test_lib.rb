@@ -26,6 +26,13 @@ module LibTest
       expect = '{"body":"foo"}'
       assert result == expect
     end
+
+    def test_複数行
+      # JSON では文字列は \\n にエンコードされる
+      result = Lib::json_value "foo\nbar"
+      expect = '{"body":"foo\nbar"}'
+      assert result == expect
+    end
   end
 
   class HttpTest < Test::Unit::TestCase
@@ -36,7 +43,7 @@ module LibTest
       @t = Thread::new do
         main
       end
-      sleep 0.1
+      sleep 0.01
     end
 
     def teardown
@@ -47,6 +54,14 @@ module LibTest
       res = Net::HTTP.get('localhost', '/?game=Emoklore&dice=1d10', 8081)
       res = JSON.parse(res)
       reg = /^\(1D10\) ＞ \d\d?$/
+
+      assert reg.match?(res['body'])
+    end
+
+    def test_複数行のダイスを振れる
+      res = Net::HTTP.get('localhost', '/?game=Cthulhu7th&dice=x2+1d100', 8081)
+      res = JSON.parse(res)
+      reg = /^#1\n\(1D100\) ＞ \d\d?\n\n#2\n\(1D100\) ＞ \d\d?$/
 
       assert reg.match?(res['body'])
     end

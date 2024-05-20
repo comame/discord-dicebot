@@ -22,11 +22,11 @@ module Lib
   end
 
   def self.json_error(message)
-    return "{ \"body\": \"#{message}\" }"
+    JSON::generate({ :body => message })
   end
 
   def self.json_value(message)
-    return "{ \"body\": \"#{message}\" }"
+    JSON::generate({ :body => message })
   end
 
   # `/` から始まる HTTP パス文字列を受け取り、`{ :game => "Emoklore", :dice => "2DM<=6" }` の Hash を返す
