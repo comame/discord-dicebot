@@ -1,6 +1,6 @@
 require 'test/unit'
 
-require './lib'
+require_relative './lib'
 
 module LibTest
   class DiceRollTest < Test::Unit::TestCase
@@ -39,15 +39,11 @@ module LibTest
     require 'json'
     require 'net/http'
 
-    def setup
+    def self.startup
       @t = Thread::new do
         main
       end
       sleep 0.01
-    end
-
-    def teardown
-      @t.kill
     end
 
     def test_ダイスを振れる

@@ -1,3 +1,3 @@
-require './lib'
+require_relative './lib/lib'
 
 main

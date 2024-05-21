@@ -7,13 +7,17 @@ GEM
     concurrent-ruby (1.2.3)
     i18n (1.8.11)
       concurrent-ruby (~> 1.0)
+    power_assert (2.0.3)
     racc (1.7.3)
+    test-unit (3.6.2)
+      power_assert
 
 PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
   bcdice (~> 3.11)
+  test-unit (~> 3.6)
 
 BUNDLED WITH
    2.4.10

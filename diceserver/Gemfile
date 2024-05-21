@@ -5,3 +5,5 @@ source "https://rubygems.org"
 # gem "rails"
 
 gem "bcdice", "~> 3.11"
+
+gem "test-unit", "~> 3.6"
