@@ -1,3 +1,3 @@
 require_relative './lib/lib'
 
-main
+startup_app

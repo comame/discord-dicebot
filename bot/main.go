@@ -151,7 +151,7 @@ func doRoll(dice, game string) (string, error) {
 
 	if r.Error != "" {
 		log.Println("")
-		return "", errors.Join(errors.New("failed to roll dice"), errors.New(r.Error))
+		return "", errors.New(r.Error)
 	}
 
 	return r.Body, nil
