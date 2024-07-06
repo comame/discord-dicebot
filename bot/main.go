@@ -13,8 +13,10 @@ import (
 )
 
 var gameMap = map[string]string{
-	"emo": "Emoklore",
-	"coc": "Cthulhu",
+	"emo":  "Emoklore",
+	"coc":  "Cthulhu7th",
+	"coc7": "Cthulhu7th",
+	"coc6": "Cthulhu",
 }
 
 func main() {
@@ -34,7 +36,7 @@ func main() {
 		}, {
 			Type:        applicationCommandTypeString,
 			Name:        "game",
-			Description: "emo=>Emoklore, coc=>Cthulhu (See bcdice.org/systems)",
+			Description: "emo=>Emoklore, coc=>Cthulhu7th (See bcdice.org/systems)",
 			Required:    false,
 		}},
 	}, applicationID, botToken); err != nil {
@@ -74,19 +76,20 @@ func main() {
 			// Command 登録で Options[0] が dice なので
 			dice := req.Data.Options[0].Value.(string)
 
-			// デフォルトではエモクロアを指定
-			game := "Emoklore"
+			// リクエストで指定されたゲーム
+			var requestedGame string
 			if len(req.Data.Options) == 2 {
 				reqGame := req.Data.Options[1].Value.(string)
 				alias, ok := gameMap[reqGame]
 				if ok {
-					game = alias
+					requestedGame = alias
 				} else {
-					game = reqGame
+					requestedGame = reqGame
 				}
 			}
+			// else: requestGame = ""
 
-			result, err := doRoll(dice, game)
+			result, err := rollDice(requestedGame, dice)
 
 			if err != nil {
 				log.Println(err)
@@ -120,7 +123,30 @@ func main() {
 	http.ListenAndServe(":8080", router.Handler())
 }
 
-func doRoll(dice, game string) (string, error) {
+func rollDice(requestGameOrEmptyString, dice string) (string, error) {
+	// 明示的にゲームを指定されたときはそのゲームのみを処理する
+	if requestGameOrEmptyString != "" {
+		result, err := requestDicebotServer(dice, requestGameOrEmptyString)
+		if err != nil {
+			return "", err
+		}
+		return result, nil
+	}
+
+	// ゲームを明示的に指定しなかったときは、エモクロア、CoC7 の順に評価する
+	resultForEmoklore, err := requestDicebotServer(dice, "Emoklore")
+	if err == nil {
+		return resultForEmoklore, nil
+	}
+	resultForCoC7, err := requestDicebotServer(dice, "Cthulhu7th")
+	if err != nil {
+		return "", nil
+	}
+
+	return resultForCoC7, nil
+}
+
+func requestDicebotServer(dice, game string) (string, error) {
 	type resp struct {
 		Body  string `json:"body"`
 		Error string `json:"error"`
