@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rspec'
-require_relative 'lib'
+require_relative '../lib/lib'
 
 RSpec.describe Lib do
   describe '.roll_text' do
