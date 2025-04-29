@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
-source "https://rubygems.org"
+source 'https://rubygems.org'
 
 # gem "rails"
 
-gem "bcdice", "~> 3.11"
+gem 'bcdice', '~> 3.11'
 
-gem "test-unit", "~> 3.6"
+gem 'test-unit', '~> 3.6'
 
-gem "sinatra", "~> 4.0"
-gem "rackup", "~> 2.1"
+gem 'rackup', '~> 2.1'
+gem 'sinatra', '~> 4.0'
+
+gem 'rubocop'
